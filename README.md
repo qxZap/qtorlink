@@ -2,6 +2,8 @@
   <img src="preview/splash.svg" alt="torlink, curated torrents straight from your terminal" style="max-width: 832px; width: 100%; height: auto;">
 </p>
 
+> **qtorlink** is a fork of [torlink](https://github.com/baairon/torlink) that adds one thing: sending torrents to your own [qBittorrent](https://www.qbittorrent.org/) over its Web UI. Press `a` on a search result, or `A` for the magnet on your clipboard, and it lands in qBittorrent, saved to the folder you choose. Jump to [Send to qBittorrent](#send-to-qbittorrent-qtorlink) for setup. Everything else below is torlink as you know it.
+
 Finding a torrent these days sucks. One site is a minefield of fake download buttons. Another hides the real link under a popup that spawns two more tabs. And after all that, half the results are dead, zero seeders.
 
 torlink is a torrent finder that lives in your terminal, with zero setup and nothing to configure. One search checks a short, curated list of reputable sources at once, and whatever you pick downloads straight to your computer. The files are yours, saved to your downloads folder.
@@ -10,13 +12,23 @@ torlink is a torrent finder that lives in your terminal, with zero setup and not
 
 1. **Install Node** (from [nodejs.org](https://nodejs.org)), it's all torlink needs.
 2. **Open your terminal.**
-3. **Start it:**
+3. **Install qtorlink** (it isn't on npm, so it comes from GitHub):
 
    ```sh
-   npx torlnk
+   git clone https://github.com/qxZap/qtorlink.git
+   cd qtorlink
+   npm install
+   npm run build
+   npm link
    ```
 
-That's the only thing you'll type. torlink opens straight to a search bar: search for what you want, paste in a magnet link or a bare infohash, drag a `.torrent` file from your file manager onto the window, or just press Enter on an empty box to browse the curated library. From there it's all keypresses, nothing to memorize, and `?` brings up the full list anytime.
+4. **Start it**, from any folder:
+
+   ```sh
+   qtorlink
+   ```
+
+That's the only command you need from here on. torlink opens straight to a search bar: search for what you want, paste in a magnet link or a bare infohash, drag a `.torrent` file from your file manager onto the window, or just press Enter on an empty box to browse the curated library. From there it's all keypresses, nothing to memorize, and `?` brings up the full list anytime.
 
 ## Finding something
 
@@ -36,7 +48,7 @@ Downloads run in the background while you keep searching, so you can queue up as
   <img src="preview/downloads.svg" alt="torlink's Downloads pane: live progress on top, recently downloaded below" style="max-width: 832px; width: 100%; height: auto;">
 </p>
 
-When a download comes with several videos or tracks, torlink drops a `playlist.m3u` into each folder holding more than one, so a course split into modules plays straight through in order. Run `torlnk --no-playlist` if you'd rather it didn't.
+When a download comes with several videos or tracks, torlink drops a `playlist.m3u` into each folder holding more than one, so a course split into modules plays straight through in order. Run `qtorlink --no-playlist` if you'd rather it didn't.
 
 ## Send to qBittorrent (qtorlink)
 
@@ -121,21 +133,21 @@ Games are the only category that can run code, so they come from FitGirl alone, 
 
 torlink also runs without the TUI, for servers and seedboxes:
 
-    torlnk search "<query>" [--category games|movies|tv|anime]
+    qtorlink search "<query>" [--category games|movies|tv|anime]
                             print one JSON document of merged search results
-    torlnk seed <path>    share files you already have
-    torlnk watch <dir>    download anything dropped into a folder
-    torlnk serve          take magnets over HTTP
-    torlnk files          stream finished downloads over HTTP
-    torlnk attach         keep the TUI alive across ssh sessions
+    qtorlink seed <path>    share files you already have
+    qtorlink watch <dir>    download anything dropped into a folder
+    qtorlink serve          take magnets over HTTP
+    qtorlink files          stream finished downloads over HTTP
+    qtorlink attach         keep the TUI alive across ssh sessions
 
-Add `--daemon` to keep seed, watch, serve, or files running after you log out; `torlnk --help` has the full list of modes and flags.
+Add `--daemon` to keep seed, watch, serve, or files running after you log out; `qtorlink --help` has the full list of modes and flags.
 
 ### Sharing something of your own
 
 Everything else starts with a torrent someone else made. `seed` goes the other way:
 
-    torlnk seed ./album
+    qtorlink seed ./album
 
 It turns the folder into a torrent, saves `album.torrent` next to it, prints the magnet, and starts sharing right away. Send anyone the magnet and they pull the files from you.
 
@@ -166,7 +178,7 @@ To run or work on torlink locally:
    Or build it and run the bundled version:
    ```sh
    npm run build
-   npx torlnk
+   node dist/cli.cjs
    ```
 
 Before opening a PR, skim [CONTRIBUTING.md](CONTRIBUTING.md); it lays out the bar with examples from real merged PRs.
