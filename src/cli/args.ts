@@ -36,6 +36,7 @@ export type CliCommand =
     }
   | { kind: "files"; port?: number; host?: string; token?: string; dir?: string; daemon?: boolean }
   | { kind: "attach" }
+  | { kind: "qbit"; magnets: string[] }
   | { kind: "update"; force?: boolean }
   | { kind: "search"; query: string; category?: SearchCategory; timeoutMs?: number }
   | { kind: "invalid"; arg: string };
@@ -98,6 +99,10 @@ function parseCommand(argv: string[]): CliCommand {
   if (a === "--version" || a === "-v") return { kind: "version" };
   if (a === "--help" || a === "-h") return { kind: "help" };
   if (a === "attach") return { kind: "attach" };
+  if (a === "qbit") {
+    const magnets = args.slice(1);
+    return magnets.length > 0 ? { kind: "qbit", magnets } : { kind: "invalid", arg: "qbit (needs a magnet)" };
+  }
   if (a === "update") return { kind: "update", force: args.slice(1).includes("--force") };
   if (a === "search") {
     const { flags, rest } = readFlags(args.slice(1));
@@ -202,14 +207,20 @@ usage
   torlnk watch <dir>          headless: download torrents dropped into <dir>
   torlnk serve                headless: HTTP add API (POST /add) on :9161
   torlnk files                headless: serve downloads over HTTP on :9160
+  qtorlink qbit "magnet:..."  send magnets straight to qBittorrent, no TUI
   torlnk attach               open/reattach the TUI in a persistent tmux session
   torlnk update [--force]     update to the latest release and restart any daemon
                               (--force rebuilds/restarts even if already current)
   torlnk --version            print the version
 
 once open: type to search every source at once, enter to run, arrows to move,
-d to download, ? for keys
+d to download, a to send to qBittorrent, ? for keys
 tip: quote magnet links (they contain & characters)
+
+qbittorrent (qtorlink): set any of these as flags, env vars or in .env
+  --QBIT_URL=http://localhost:8666   Web UI address (default localhost:8080)
+  --QBIT_USER=admin --QBIT_PASS=...  omit if localhost auth bypass is on
+  --QBIT_SAVEPATH=E:/plex            folder qBittorrent saves into
 
 playlists (TUI/watch/serve): finished downloads automatically get a
 playlist.m3u in each folder containing 2+ audio/video files, including nested

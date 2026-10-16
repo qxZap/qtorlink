@@ -50,6 +50,7 @@ import { COLOR, ICON } from "./theme";
 import { useMouseWheel } from "./hooks/useMouseWheel";
 import { VERSION } from "../version";
 import { fetchLatestVersion, isNewer } from "../update/version";
+import { sendToQbit } from "../util/qbit";
 
 // The "download to" prompt's subject line: the name for one torrent, a count
 // (and total size when known) for a marked batch.
@@ -361,6 +362,17 @@ export function App({
     })();
   }, []);
 
+  const sendMagnetsToQbit = useCallback((inputs: { name: string; magnet: string }[]) => {
+    const what =
+      inputs.length === 1 ? truncate(cleanText(inputs[0]!.name), 32) : `${inputs.length} torrents`;
+    setNotice(`Sending to qBittorrent: ${what}…`);
+    void sendToQbit(inputs.map((i) => i.magnet)).then(
+      () => setNotice(`Sent to qBittorrent: ${what}`),
+      (e: unknown) =>
+        setNotice(`Couldn't reach qBittorrent: ${e instanceof Error ? e.message : String(e)}`),
+    );
+  }, []);
+
   const openDownloadFolder = useCallback((dir: string) => {
     void (async () => {
       const ok = await openFolder(dir);
@@ -473,6 +485,18 @@ export function App({
     setNotice("No magnet link on the clipboard.");
   }, [startDownload, startFromTorrentFile]);
 
+  // A: like m, but the clipboard magnet goes to qBittorrent instead.
+  const pasteToQbit = useCallback(async () => {
+    const text = (await readClipboard()).trim();
+    const found = text.match(/magnet:\?xt=urn:btih:[^\s"'<>]+/i)?.[0];
+    const magnet = parseInput(found ?? text);
+    if (!magnet) {
+      setNotice("No magnet link on the clipboard.");
+      return;
+    }
+    sendMagnetsToQbit([{ name: magnet.name, magnet: magnet.magnet }]);
+  }, [sendMagnetsToQbit]);
+
   useEffect(() => {
     if (!notice) return;
     const t = setTimeout(() => setNotice(null), 4000);
@@ -517,6 +541,7 @@ export function App({
       startDownload,
       requestDownloadTo,
       copyMagnet,
+      sendToQbit: sendMagnetsToQbit,
       openDownloadFolder,
       exportTorrent,
       fetchAndExportTorrent,
@@ -548,6 +573,7 @@ export function App({
     startDownload,
     requestDownloadTo,
     copyMagnet,
+    sendMagnetsToQbit,
     openDownloadFolder,
     exportTorrent,
     fetchAndExportTorrent,
@@ -589,6 +615,10 @@ export function App({
       }
       if (input === "m") {
         void pasteFromClipboard();
+        return;
+      }
+      if (input === "A") {
+        void pasteToQbit();
         return;
       }
       if (key.tab) {

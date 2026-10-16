@@ -101,6 +101,7 @@ function makeStore(
     startDownload: noop,
     requestDownloadTo: noop,
     copyMagnet: noop,
+    sendToQbit: noop,
     openDownloadFolder: noop,
     exportTorrent: noop,
     fetchAndExportTorrent: noop,

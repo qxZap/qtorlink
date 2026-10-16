@@ -5,8 +5,20 @@ import { runAttach } from "./daemon/attach";
 import { containUnhandledRejections, logCrash } from "./util/crashlog";
 import { VERSION } from "./version";
 import { App } from "./ui/App";
+import { sendToQbit, takeQbitFlags } from "./util/qbit";
+import { dirname, join } from "node:path";
 
-const cmd = parseCliArgs(process.argv.slice(2));
+// qtorlink: QBIT_* settings come from --QBIT_X=value flags, then the shell
+// env, then ./.env, then the .env next to the install (loadEnvFile never
+// overrides a variable that is already set).
+const argv = takeQbitFlags(process.argv.slice(2));
+for (const file of [".env", join(dirname(process.argv[1] ?? "."), "..", ".env")]) {
+  try {
+    process.loadEnvFile(file);
+  } catch {}
+}
+
+const cmd = parseCliArgs(argv);
 
 if (cmd.kind === "help") {
   console.log(HELP_TEXT);
@@ -32,6 +44,7 @@ containUnhandledRejections({
   echo:
     cmd.kind === "update" ||
     cmd.kind === "search" ||
+    cmd.kind === "qbit" ||
     cmd.kind === "watch" ||
     cmd.kind === "seed" ||
     cmd.kind === "serve" ||
@@ -91,6 +104,11 @@ if (cmd.kind === "update") {
     dir: cmd.dir,
   };
   void import("./daemon/files").then(({ runFiles }) => runFiles(options).catch(failHeadless));
+} else if (cmd.kind === "qbit") {
+  sendToQbit(cmd.magnets).then(() => {
+    console.log(`sent ${cmd.magnets.length} torrent(s) to qBittorrent`);
+    process.exit(0);
+  }, failHeadless);
 } else if (cmd.kind === "search") {
   // One JSON document on stdout, then exit: the shape a script can pipe into
   // jq. Exit 1 only when every source failed, so an empty-but-healthy search

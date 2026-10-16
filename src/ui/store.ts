@@ -67,6 +67,8 @@ export interface Store {
   // fires only once they are queued, never when the prompt is cancelled.
   requestDownloadTo: (inputs: DownloadInput[], onQueued?: () => void) => void;
   copyMagnet: (input: { name: string; magnet: string }) => void;
+  // Hands magnets to a running qBittorrent (a) instead of downloading here.
+  sendToQbit: (inputs: { name: string; magnet: string }[]) => void;
   openDownloadFolder: (dir: string) => void;
   // Copies the cached .torrent metadata into the item's download folder and
   // reports the outcome through the notice line.

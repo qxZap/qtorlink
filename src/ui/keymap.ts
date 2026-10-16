@@ -33,6 +33,8 @@ export const HELP_GROUPS: HelpGroup[] = [
       { keys: "s", label: "Sort results" },
       { keys: "z", label: "Hide dead torrents" },
       { keys: "y", label: "Copy magnet" },
+      { keys: "a", label: "Send to qBittorrent" },
+      { keys: "A", label: "Clipboard to qBit" },
       { keys: "↵", label: "Open details" },
       { keys: "e", label: "Export as .torrent" },
       { keys: "m", label: "Paste magnet" },
@@ -122,6 +124,7 @@ export function footerHints(
     // chosen folder) stays bound but lives in the `?` sheet alone.
     { keys: "d", label: "Download" },
     { keys: "y", label: "Copy" },
+    { keys: "a", label: "qBit" },
     resultFocus === "detail" ? EXPORT : { keys: "s", label: "Sort" },
     { keys: "/", label: "Search" },
     { keys: "f", label: "Filter" },

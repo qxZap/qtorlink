@@ -130,6 +130,7 @@ export function Results() {
     startDownload,
     requestDownloadTo,
     copyMagnet,
+    sendToQbit,
     fetchAndExportTorrent,
     setResultFocus,
     contentWidth,
@@ -265,6 +266,13 @@ export function Results() {
       } else if (input === " ") {
         const r = results[clamped];
         if (r) toggleMark(r.infoHash);
+      } else if (input === "a") {
+        const batch = results.filter((r) => marked.has(r.infoHash));
+        const r = results[clamped];
+        const targets = batch.length > 0 ? batch : r ? [r] : [];
+        if (targets.length === 0) return;
+        sendToQbit(targets);
+        setMarked(new Set());
       } else if (input === "d" || input === "D") {
         // Only marks still in view count: a filter can hide a marked row, and
         // downloading something the user can't see would be a surprise.
@@ -297,6 +305,7 @@ export function Results() {
       } else if (input === "d" && detail) openDownload(detail);
       else if (input === "D" && detail) openDownloadTo([detail]);
       else if (input === "y" && detail) copyResultMagnet(detail);
+      else if (input === "a" && detail) sendToQbit([detail]);
       else if (input === "e" && detail)
         fetchAndExportTorrent({ id: detail.infoHash, name: detail.name, magnet: detail.magnet });
     },

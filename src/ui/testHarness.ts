@@ -163,6 +163,7 @@ export function makeTestStore(overrides: Partial<Store> = {}): Store {
     startDownload: noop,
     requestDownloadTo: noop,
     copyMagnet: noop,
+    sendToQbit: noop,
     openDownloadFolder: noop,
     exportTorrent: noop,
     fetchAndExportTorrent: noop,

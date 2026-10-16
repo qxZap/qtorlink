@@ -38,6 +38,72 @@ Downloads run in the background while you keep searching, so you can queue up as
 
 When a download comes with several videos or tracks, torlink drops a `playlist.m3u` into each folder holding more than one, so a course split into modules plays straight through in order. Run `torlnk --no-playlist` if you'd rather it didn't.
 
+## Send to qBittorrent (qtorlink)
+
+qtorlink is a fork of [torlink](https://github.com/baairon/torlink) that can hand torrents to a running qBittorrent instead of downloading them itself. Everything torlink does still works the same way.
+
+### Setup
+
+1. In qBittorrent, enable **Tools → Options → Web UI** and note the port.
+2. Copy `.env.example` to `.env` and fill it in:
+
+   ```ini
+   QBIT_URL=http://localhost:8666
+   QBIT_USER=admin
+   QBIT_PASS=admin123
+   QBIT_SAVEPATH=E:/plex
+   ```
+
+| Setting | What it does | Default |
+| --- | --- | --- |
+| `QBIT_URL` | qBittorrent Web UI address | `http://localhost:8080` |
+| `QBIT_USER` | Web UI username | none: skips login, which is fine when "Bypass authentication for clients on localhost" is ticked |
+| `QBIT_PASS` | Web UI password | empty |
+| `QBIT_SAVEPATH` | Folder qBittorrent saves into | qBittorrent's own default folder |
+
+Each setting can come from four places. When the same one is set twice, the first in this list wins:
+
+1. A flag: `--QBIT_SAVEPATH=E:/Games` (or `--qbit-savepath=E:/Games`)
+2. Your shell environment
+3. `.env` in the folder you run qtorlink from
+4. `.env` in the qtorlink install folder (here `D:\qtorlink`)
+
+### Running it
+
+```sh
+npm install
+npm run build
+npm link                     # once: puts `qtorlink` on your PATH
+qtorlink                     # open the TUI with your .env settings
+qtorlink --QBIT_SAVEPATH=E:/Games          # this run saves to E:/Games instead
+qtorlink --QBIT_URL=http://nas:8080 --QBIT_USER=me --QBIT_PASS=secret
+```
+
+Without `npm link`, run `npm run dev -- --QBIT_SAVEPATH=E:/Games` or `node dist/cli.cjs --QBIT_SAVEPATH=E:/Games` from the project folder. Note the `--` after `npm run dev`.
+
+### Keys
+
+| Key | Where | What |
+| --- | --- | --- |
+| `a` | search results / details | send the highlighted result to qBittorrent, or every result marked with space |
+| `A` (shift+a) | anywhere | send the magnet on your clipboard to qBittorrent |
+
+The top line of the app shows `Sent to qBittorrent: …`, or the reason it failed. A magnet you paste with `m` or type into the search box still downloads in torlink; use `A` to send it to qBittorrent.
+
+### Without the TUI
+
+```sh
+qtorlink qbit "magnet:?xt=urn:btih:..."             # one or more magnets, then exit
+qtorlink --QBIT_SAVEPATH=E:/Games qbit "magnet:?xt=..."
+```
+
+It exits 0 on success and 1 with an error message otherwise, so it works in scripts.
+
+### Testing
+
+- `npm test` runs the unit tests (`src/util/qbit.test.ts` covers this feature).
+- For a live check, run `qtorlink qbit "<magnet>"` and the torrent should appear in qBittorrent under your `QBIT_SAVEPATH`.
+
 ## What it searches
 
 A short, hand-picked list of trusted sources:
