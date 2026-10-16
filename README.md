@@ -78,7 +78,7 @@ Each setting can come from four places. When the same one is set twice, the firs
 1. A flag: `--QBIT_SAVEPATH=E:/Games` (or `--qbit-savepath=E:/Games`)
 2. Your shell environment
 3. `.env` in the folder you run qtorlink from
-4. `.env` in the qtorlink install folder (here `D:\qtorlink`)
+4. `.env` in the folder you cloned qtorlink into
 
 ### Running it
 
